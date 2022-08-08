@@ -1,6 +1,8 @@
 package com.example.EmployeeDemo.controller;
+import com.example.EmployeeDemo.exception.ControllerException;
 import com.example.EmployeeDemo.exception.EmployeeAlreadyExistsException;
 import com.example.EmployeeDemo.exception.EmployeeNotFoundException;
+import com.example.EmployeeDemo.exception.EmployeeTimeStamp;
 import com.example.EmployeeDemo.model.Employee;
 import com.example.EmployeeDemo.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -38,7 +41,16 @@ public class EmployeeController {
     }
 
     @ExceptionHandler(value = EmployeeAlreadyExistsException.class)
-    public ResponseEntity<String> EmployeeAlreadyExistsException(EmployeeAlreadyExistsException employeeAlreadyExistsException) {
-        return new ResponseEntity<String>("Employee already exists", HttpStatus.CONFLICT);
+    public ResponseEntity<?> EmployeeAlreadyExistsException(EmployeeAlreadyExistsException employeeAlreadyExistsException) {
+
+        String errorMessage=employeeAlreadyExistsException.getLocalizedMessage();
+        EmployeeTimeStamp employeeTimeStamp=new EmployeeTimeStamp(new Date(),errorMessage);
+        ControllerException ce = new ControllerException("349","Employee already exist!");
+        return new ResponseEntity<>(ce, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(value = EmployeeNotFoundException.class)
+    public ResponseEntity<String> EmployeeNotFoundException(EmployeeNotFoundException employeeNotFoundException) {
+        return new ResponseEntity<String>("Employee not found!", HttpStatus.CONFLICT);
     }
 }
