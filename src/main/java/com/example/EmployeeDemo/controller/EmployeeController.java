@@ -25,18 +25,21 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api")
 public class EmployeeController {
-    private final EmployeeService employeeService;
-    private EmployeeRepository employeeRepository;
+    //private EmployeeService employeeService;
+    private final EmployeeRepository employeeRepository;
 
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService) {
-        this.employeeService = employeeService;
+    public EmployeeController(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
     }
 
     @PostMapping("/employee")
     public ResponseEntity<Employee> saveEmployee(@RequestBody Employee employee) throws EmployeeAlreadyExistsException {
-        Employee employee1 = employeeService.saveEmployee(employee);
+        if (employeeRepository.existsById(employee.getId())) {
+            throw new EmployeeAlreadyExistsException();
+        }
+        Employee employee1 = employeeRepository.save(employee);
         return new ResponseEntity<>(employee1, HttpStatus.CREATED);
 
     }
@@ -45,29 +48,27 @@ public class EmployeeController {
 
     @GetMapping("/employees")
     public ResponseEntity<List<Employee>> getAllEmployee() throws EmployeeNotFoundException {
-        return new ResponseEntity<>((List<Employee>) employeeService.getAllEmployee(), HttpStatus.OK);
+        return new ResponseEntity<>((List<Employee>) employeeRepository.findAll(), HttpStatus.OK);
     }
 
     @PostMapping("/update")
     public ResponseEntity<?> updateEmployee(@RequestBody Employee employee) throws EmployeeNotFoundException,EmployeePinAlreadyExistsException {
-        try {
-            Employee employee1 = employeeService.updateEmployee(employee);
+        if (!employeeRepository.existsById(employee.getId())) {
+            throw new EmployeeNotFoundException();
+        }else {
+            Employee employee1 = employeeRepository.save(employee);
             return new ResponseEntity<>(employee1, HttpStatus.CREATED);
-        }catch (org.springframework.dao.DataIntegrityViolationException e){
-            ErrorResponse erResp = ErrorResponse.builder()
-                    .message("This Pin already exist!")
-                    .code("181")
-                    .traceId(UUID.randomUUID().toString())
-                    .build();
-            return new ResponseEntity<>(erResp, HttpStatus.CONFLICT);
         }
 
 
     }
 
     @GetMapping("employee/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable("id") int id) throws EmployeeNotFoundException {
-        return new ResponseEntity<>(employeeService.getEmployeeById(id), HttpStatus.OK);
+    public ResponseEntity<?> getEmployeeById(@PathVariable("id") int id, Employee employee) throws EmployeeNotFoundException {
+        if (!employeeRepository.existsById(employee.getId())) {
+            throw new EmployeeNotFoundException();
+        }
+        return new ResponseEntity<>(employeeRepository.findById(id), HttpStatus.OK);
     }
 
     @ExceptionHandler(value = EmployeeAlreadyExistsException.class)
