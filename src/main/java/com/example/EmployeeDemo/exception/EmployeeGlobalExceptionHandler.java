@@ -17,10 +17,13 @@ public class EmployeeGlobalExceptionHandler {
 
     private String message3;
 
+    public EmployeeGlobalExceptionHandler() {
+    }
+
 
     @ExceptionHandler(value = EmployeeNotFoundException.class)
-    public ResponseEntity<String> blogNotFoundException(EmployeeNotFoundException blogNotFoundException) {
-        return new ResponseEntity<String>(message2, HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> employeeNotFoundException(EmployeeNotFoundException employeeNotFoundException) {
+        return new ResponseEntity<>(employeeNotFoundException.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(value = Exception.class)

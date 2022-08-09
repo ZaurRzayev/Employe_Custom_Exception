@@ -9,18 +9,15 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeAlreadyExistsException extends RuntimeException {
+public class EmployeePinAlreadyExistsException extends RuntimeException {
     private String message;
 
     private ErrorResponse error;
 
-    public EmployeeAlreadyExistsException(String message) {
+    public EmployeePinAlreadyExistsException(String message) {
         super(message);
         this.message = message;
     }
-    @Override
-    public Throwable fillInStackTrace() {
-        return this;
-    }
+
 
 }

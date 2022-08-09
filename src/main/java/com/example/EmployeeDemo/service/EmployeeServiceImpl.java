@@ -3,11 +3,13 @@ package com.example.EmployeeDemo.service;
 import com.example.EmployeeDemo.exception.EmployeeAlreadyExistsException;
 import com.example.EmployeeDemo.exception.EmployeeNotFoundException;
 import com.example.EmployeeDemo.model.Employee;
+import com.example.EmployeeDemo.model.ErrorResponse;
 import com.example.EmployeeDemo.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -23,8 +25,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeRepository.existsById(employee.getId())) {
             throw new EmployeeAlreadyExistsException();
         }
-        Employee saveEmployee = employeeRepository.save(employee);
-        return saveEmployee;
+        return employeeRepository.save(employee);
     }
 
     @Override
@@ -36,7 +37,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee getEmployeeById(int id) throws EmployeeNotFoundException {
         Employee employee;
         if (employeeRepository.findById(id).isEmpty()) {
-            throw new EmployeeNotFoundException();
+            ErrorResponse erResp = ErrorResponse.builder()
+                    .message(id+" This id is not exist")
+                    .code("123")
+                    .traceId(UUID.randomUUID().toString())
+                    .build();
+            throw new EmployeeNotFoundException(erResp);
         } else {
             employee = employeeRepository.findById(id).get();
         }
@@ -48,7 +54,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (!employeeRepository.existsById(employee.getId())) {
             throw new EmployeeNotFoundException();
         }
-        Employee saveEmployee = employeeRepository.save(employee);
-        return saveEmployee;
+        return employeeRepository.save(employee);
     }
 }
