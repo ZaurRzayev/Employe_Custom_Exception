@@ -18,7 +18,6 @@ public class EmployeeNotFoundException extends RuntimeException {
     }
 
 
-
     public String getErrorCode() {
         return "NE-001";
     }

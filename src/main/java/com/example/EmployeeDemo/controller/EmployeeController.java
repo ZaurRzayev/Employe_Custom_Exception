@@ -1,24 +1,18 @@
 /*
-create table employee(ID SERIAL PRIMARY KEY ,firstNAME text,lastNAME text,pin int UNIQUE, mobile text, active_status boolean, sasalary int);
+create table employee(ID SERIAL PRIMARY KEY ,firstNAME text,lastNAME text,pin int UNIQUE, mobile text, active_status boolean, salary int);
 --drop table employee
  */
 
 package com.example.EmployeeDemo.controller;
-import com.example.EmployeeDemo.exception.ControllerException;
-import com.example.EmployeeDemo.exception.EmployeeAlreadyExistsException;
-import com.example.EmployeeDemo.exception.EmployeeNotFoundException;
-import com.example.EmployeeDemo.exception.EmployeePinAlreadyExistsException;
+
+import com.example.EmployeeDemo.exception.*;
 import com.example.EmployeeDemo.model.Employee;
 import com.example.EmployeeDemo.model.ErrorResponse;
 import com.example.EmployeeDemo.repository.EmployeeRepository;
-import com.example.EmployeeDemo.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +21,7 @@ import java.util.UUID;
 public class EmployeeController {
     //private EmployeeService employeeService;
     private final EmployeeRepository employeeRepository;
-
+//    ControllerException controllerException;
 
     @Autowired
     public EmployeeController(EmployeeRepository employeeRepository) {
@@ -39,11 +33,29 @@ public class EmployeeController {
         if (employeeRepository.existsById(employee.getId())) {
             throw new EmployeeAlreadyExistsException();
         }
+
+        String temUsername = employee.getUsername();
+        if(temUsername !=null && !"".equals(temUsername)) {
+            Employee userObject = employeeRepository.findByUsername(temUsername);
+            if(userObject!=null) {
+                throw new EmployeeUsernameAlreadyExistsException();
+            }
+
+        }
+
+        String pin = employee.getPin();
+        if(pin !=null && !"".equals(pin)) {
+            Employee userObject = employeeRepository.findByPin(pin);
+            if(userObject!=null) {
+                throw new EmployeePinAlreadyExistsException();
+            }
+        }
+
+
         Employee employee1 = employeeRepository.save(employee);
         return new ResponseEntity<>(employee1, HttpStatus.CREATED);
 
     }
-
 
 
     @GetMapping("/employees")
@@ -52,10 +64,10 @@ public class EmployeeController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateEmployee(@RequestBody Employee employee) throws EmployeeNotFoundException,EmployeePinAlreadyExistsException {
+    public ResponseEntity<?> updateEmployee(@RequestBody Employee employee) throws EmployeeNotFoundException, EmployeePinAlreadyExistsException {
         if (!employeeRepository.existsById(employee.getId())) {
             throw new EmployeeNotFoundException();
-        }else {
+        } else {
             Employee employee1 = employeeRepository.save(employee);
             return new ResponseEntity<>(employee1, HttpStatus.CREATED);
         }
@@ -86,8 +98,6 @@ public class EmployeeController {
     @ExceptionHandler(value = EmployeeNotFoundException.class)
     public ResponseEntity<?> EmployeeNotFoundException(EmployeeNotFoundException employeeNotFoundException) {
 
-//        ControllerException ce = new ControllerException(employeeNotFoundException,new Date(),"349","not found 404","Heyyyy!");
-//        return new ResponseEntity<>(ce, HttpStatus.CONFLICT);
         ErrorResponse erResp = ErrorResponse.builder()
                 .message("This id is not valid!")
                 .code("404")
@@ -101,7 +111,7 @@ public class EmployeeController {
     public ResponseEntity<?> EmployeePinAlreadyExistsException(EmployeePinAlreadyExistsException employeePinAlreadyExistsException) {
 
         ErrorResponse erResp = ErrorResponse.builder()
-                .message("This Pin Already in use!")
+                .message("This pin Already in use!")
                 .code("101")
                 .traceId(UUID.randomUUID().toString())
                 .build();
@@ -109,5 +119,16 @@ public class EmployeeController {
 
     }
 
+    @ExceptionHandler(value = EmployeeUsernameAlreadyExistsException.class)
+    public ResponseEntity<?> EmployeeUsernameAlreadyExistsException(EmployeeUsernameAlreadyExistsException employeeUsernameAlreadyExistsException) {
+
+        ErrorResponse erResp = ErrorResponse.builder()
+                .message("This Username Already in use!")
+                .code("109")
+                .traceId(UUID.randomUUID().toString())
+                .build();
+        return new ResponseEntity<>(erResp, HttpStatus.CONFLICT);
+
+    }
 
 }

@@ -12,7 +12,6 @@ public class EmployeeGlobalExceptionHandler {
 
 
 
-    private String message2;
 
 
     private String message3;

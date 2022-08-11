@@ -1,42 +1,48 @@
 package com.example.EmployeeDemo.model;
 
-import javax.annotation.processing.Generated;
-
 import javax.persistence.*;
 
 @Entity
-@Table(name="Employee")
+@Table(name = "Employee")
 public class Employee {
-    public Employee(){}
-    public Employee(int id,String firstName,String lastName,int pin,String mobile,int salary,boolean active){
-        this.firstName=firstName;
-        this.lastName=lastName;
-        this.pin=pin;
-        this.mobile=mobile;
-        this.salary=salary;
-        this.active=active;
+    public Employee() {
     }
+
+    public Employee(int id, String firstName ,String lastName, String username,String pin, String mobile, int salary, boolean active) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username=username;
+        this.pin = pin;
+        this.mobile = mobile;
+        this.salary = salary;
+        this.active = active;
+    }
+
     @Id
-    @Column(name="id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id=1;
-    @Column(name="firstname")
-    private String firstName="";
+    private int id = 1;
+    @Column(name = "firstname")
+    private String firstName = "";
 
-    @Column(name="lastname")
-    private String lastName="";
 
-    @Column(name="pin")
-    private int pin=0;
+    @Column(name = "username")//,unique=true for unique uses
+    private String username = "";
 
-    @Column(name="mobile")
-    private String mobile="";
+    @Column(name = "lastname")
+    private String lastName = "";
 
-    @Column(name="salary")
-    private int salary=0;
+    @Column(name = "pin")
+    private String pin = "";
 
-    @Column(name="active_status")
-    private boolean active=true;
+    @Column(name = "mobile")
+    private String mobile = "";
+
+    @Column(name = "salary")
+    private int salary = 0;
+
+    @Column(name = "active_status")
+    private boolean active = true;
 
     public int getId() {
         return id;
@@ -62,11 +68,11 @@ public class Employee {
         this.lastName = lastName;
     }
 
-    public int getPin() {
+    public String getPin() {
         return pin;
     }
 
-    public void setPin(int pin) {
+    public void setPin(String pin) {
         this.pin = pin;
     }
 
@@ -92,5 +98,13 @@ public class Employee {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
